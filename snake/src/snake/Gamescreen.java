@@ -7,6 +7,7 @@ package snake;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -45,7 +46,7 @@ public class Gamescreen extends JPanel implements Runnable, KeyListener{
         
         setFocusable(true);
         
-        setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        setPreferredSize(new Dimension(WIDTH, HEIGHT+20));
         addKeyListener(this);
         
         snake = new Vector<Body>();
@@ -85,7 +86,7 @@ public class Gamescreen extends JPanel implements Runnable, KeyListener{
             x--;
         }else{
             //System.out.println(x + " " + y);
-            repaint();
+            
             //Body colision
             for (int i = 0; i < snake.size()-1; i++) {
                 if(x == snake.get(i).getX() && y == snake.get(i).getY())
@@ -157,6 +158,14 @@ public class Gamescreen extends JPanel implements Runnable, KeyListener{
             g.drawLine(i, i, i, HEIGHT-i);
             g.drawLine(WIDTH-i, i, WIDTH-i, HEIGHT-i);
         }
+        
+        for(int i = 0; i < 20; i++){
+            g.drawLine(0, HEIGHT+i, WIDTH+i, HEIGHT+i);
+        }
+        
+        g.setColor(Color.white);
+        g.setFont(new Font("Courier New", Font.PLAIN, 22));
+        g.drawString("  Score: " + (size-5), 0, HEIGHT+19);
         
     }
 

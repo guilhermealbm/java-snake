@@ -15,13 +15,13 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 /**
  *
  * @author guilherme
  */ 
-public class Gamescreen extends JPanel implements Runnable, KeyListener{
-    
+public class Gamescreen extends JPanel implements Runnable, KeyListener{    
      
     public static final int WIDTH = 410, HEIGHT = 410;
     
@@ -74,7 +74,6 @@ public class Gamescreen extends JPanel implements Runnable, KeyListener{
     }
     
     public void tick(){
-        
         if(snake.isEmpty()){ //Create new snake
             b = new Body(x, y, 10);
             snake.add(b);
@@ -85,17 +84,16 @@ public class Gamescreen extends JPanel implements Runnable, KeyListener{
             }
             x--;
         }else{
-            
+            //System.out.println(x + " " + y);
+            repaint();
             //Body colision
             for (int i = 0; i < snake.size()-1; i++) {
-                System.out.println(x + " " + y + " " + snake.get(i).getX() + " " + snake.get(i).getY());
-                System.out.println((x == snake.get(i).getX()) + " " + (y == snake.get(i).getY()));
                 if(x == snake.get(i).getX() && y == snake.get(i).getY())
                     gameOver();
             }
 
             //Border colision
-            if(x < 2 || x > ((WIDTH-10*3)/10) || y < 2 || y > ((WIDTH-10*3)/10))
+            if(x < 1 || x > ((WIDTH-10*2)/10) || y < 1 || y > ((WIDTH-10*2)/10))
                 gameOver();
         
             ticks++;
@@ -107,21 +105,17 @@ public class Gamescreen extends JPanel implements Runnable, KeyListener{
 
             b = new Body(x, y, 10);
             snake.add(b);
-
-            try {
-                Thread.sleep(100); //Change for difficulty
-                if(snake.size() > size){
-                    snake.remove(0);//Movement
-                }
-            } catch (InterruptedException ex) {
-                    Logger.getLogger(Gamescreen.class.getName()).log(Level.SEVERE, null, ex);
+            
+            
+            if(snake.size() > size){
+                snake.remove(0);//Movement
             }
 
             if(foods.isEmpty()){
-                int x_ = r.nextInt(((WIDTH-10*2)/10));
-                int y_ = r.nextInt(((WIDTH-10*2)/10));
+                int x_ = r.nextInt(((WIDTH-10*3)/10));
+                int y_ = r.nextInt(((WIDTH-10*3)/10));
 
-                food = new Food(x_, y_, 10);
+                food = new Food(x_+1, y_+1, 10);
                 foods.add(food);
             }
 
@@ -150,6 +144,12 @@ public class Gamescreen extends JPanel implements Runnable, KeyListener{
         for (int i = 0; i < HEIGHT/10; i++) 
             g.drawLine(0, i*10, HEIGHT, i*10);
         
+        for (int i = 0; i < snake.size(); i++) 
+            snake.get(i).draw(g);   
+        
+        for (int i = 0; i < foods.size(); i++) 
+            foods.get(i).draw(g);
+        
         g.setColor(Color.black);        
         for(int i = 0; i < 10; i++){
             g.drawLine(i, i, WIDTH-i, i);
@@ -158,20 +158,24 @@ public class Gamescreen extends JPanel implements Runnable, KeyListener{
             g.drawLine(WIDTH-i, i, WIDTH-i, HEIGHT-i);
         }
         
-        for (int i = 0; i < snake.size(); i++) 
-            snake.get(i).draw(g);     
-        
-        for (int i = 0; i < foods.size(); i++) 
-            foods.get(i).draw(g);
-        
-        
     }
 
     @Override
     public void run() {
+        int i = 17*6;
         while (running) {
-            tick();
-            repaint();
+            
+            if(i == 17*6){ //Change for difficulty
+               tick();
+               i = 0;
+            }
+            try {
+                Thread.sleep(1); //+-fps
+                repaint();
+                i++;
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Gamescreen.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         
     }

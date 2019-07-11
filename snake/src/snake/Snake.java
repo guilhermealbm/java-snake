@@ -27,6 +27,7 @@ public class Snake {
         
         frame.pack();
         frame.setVisible(true);
+        frame.setLocationRelativeTo(null); //centered
         
     }
     

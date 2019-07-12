@@ -15,8 +15,9 @@ import java.util.Random;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.Timer;
 
 /**
  *
@@ -37,10 +38,9 @@ public class Gamescreen extends JPanel implements Runnable, KeyListener{
     
     private Random r;
     
-    private int x = 10, y = 10, size = 5;
+    private int x = 10, y = 10, size = 5, best = 0;
     
     private boolean right = true, left = false, up = false, down = false;
-    private int ticks = 0;
     
     public Gamescreen(){
         
@@ -67,12 +67,42 @@ public class Gamescreen extends JPanel implements Runnable, KeyListener{
     
     public void gameOver(){
         running = false;
+        restart();
         try {
             thread.join();
         } catch (InterruptedException ex) {
             Logger.getLogger(Gamescreen.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    public void restart(){
+        JDialog.setDefaultLookAndFeelDecorated(true);
+        int response = JOptionPane.showConfirmDialog(null, "Do you want to restart?", "Confirm",
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (response == JOptionPane.NO_OPTION) {
+            System.exit(0);
+        } 
+        else if (response == JOptionPane.YES_OPTION) {
+            reconfig();
+            start();
+        } 
+        else if (response == JOptionPane.CLOSED_OPTION) {
+            System.exit(0);
+        }
+    }
+    
+    public void reconfig(){
+        snake.clear();
+        foods.clear();
+        x = 10;
+        y = 10;
+        size = 5;
+        boolean right = true, left = false, up = false, down = false;
+        snake = new Vector<Body>();
+        foods = new Vector<Food>();
+        r = new Random();
+    }
+    
     
     public void tick(){
         if(snake.isEmpty()){ //Create new snake
@@ -85,7 +115,6 @@ public class Gamescreen extends JPanel implements Runnable, KeyListener{
             }
             x--;
         }else{
-            //System.out.println(x + " " + y);
             
             //Body colision
             for (int i = 0; i < snake.size()-1; i++) {
@@ -96,8 +125,6 @@ public class Gamescreen extends JPanel implements Runnable, KeyListener{
             //Border colision
             if(x < 1 || x > ((WIDTH-10*2)/10) || y < 1 || y > ((WIDTH-10*2)/10))
                 gameOver();
-        
-            ticks++;
 
             if(right) x++;
             if(left) x--;
@@ -129,6 +156,9 @@ public class Gamescreen extends JPanel implements Runnable, KeyListener{
             }
             
         }
+        
+        if(size-5 > best)
+            best = size-5;
             
     }
     
@@ -165,21 +195,22 @@ public class Gamescreen extends JPanel implements Runnable, KeyListener{
         
         g.setColor(Color.white);
         g.setFont(new Font("Courier New", Font.PLAIN, 22));
-        g.drawString("  Score: " + (size-5), 0, HEIGHT+19);
+        g.drawString("  Score: " + (size-5)+ "                      "
+                + "High Score: " + best, 0, HEIGHT+19);
         
     }
 
     @Override
     public void run() {
-        int i = 17*6;
+        int i = 100;
         while (running) {
             
-            if(i == 17*6){ //Change for difficulty
+            if(i == 100){ //Change for difficulty
                tick();
                i = 0;
             }
             try {
-                Thread.sleep(1); //+-fps
+                Thread.sleep(1);
                 repaint();
                 i++;
             } catch (InterruptedException ex) {
